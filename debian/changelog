@@ -1,3 +1,17 @@
+sc101-nbd (0.05) unstable; urgency=low
+
+  * New upstream release.
+  * Add LSB-compliant init.d script for the Debian package.
+  * Switch to git(1) as version control system.
+  * Include <limits.h> since we need PATH_MAX. This fixes a compilation error
+    on Ubuntu 10.10.
+  * Minor changes:
+      - Add README.
+      - Eliminate warnings about ignored return values.
+      - Whitespace cleanup.
+
+ -- Claudio Jolowicz <cj@dealloc.org>  Fri, 11 Feb 2011 17:10:05 +0100
+
 sc101-nbd (0.03) unstable; urgency=low
 
   * Initial Release.
