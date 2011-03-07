@@ -57,10 +57,10 @@ distclean: realclean
 dist: $(package)_$(version).tar.gz
 
 $(package)_$(version).tar.gz: .depend
-	! svn status | grep '^[^?]' # check for changes
+	! git status -s | grep '^[^?]' # check for changes
 	rm -rf dist.tmp
 	mkdir -p dist.tmp/$(package)-$(version)
-	svn ls -R | cpio -dump dist.tmp/$(package)-$(version)
+	git ls-files | cpio -dump dist.tmp/$(package)-$(version)
 	perl -pi -e 's/\@pkg_version\@/$(version)/g'			\
 	    dist.tmp/$(package)-$(version)/sc101-nbd.spec
 
