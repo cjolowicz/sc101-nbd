@@ -344,7 +344,8 @@ void psan_attach_nbd(char *id, char *path)
 	err(EXIT_FAILURE, "ioctl(NBD_SET_SOCK)");
 
     if (!debug)
-	daemon(0, 0);
+	if (daemon(0, 0) < 0)
+	    err(EXIT_FAILURE, "daemon(0, 0)");
 
     /* fork worker threads */
     pid_t pid;
