@@ -43,7 +43,7 @@ install: ut
 
 clean:
 	rm -f $(OBJS) ut
-	
+
 realclean: clean
 	rm -f .depend
 	rm -rf dist.tmp deb.tmp
