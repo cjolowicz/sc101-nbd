@@ -307,7 +307,9 @@ void psan_attach_nbd(char *id, char *path)
 	int sysfs;
 	if ((sysfs = open(filename, O_RDWR)) >= 0)
 	{
-	    write(sysfs, "8", sizeof("8")-1);
+	    if (write(sysfs, "8", sizeof("8")-1) < 0)
+	      warn("write(sysfs, \"8\", %u)", sizeof("8")-1);
+
 	    close(sysfs);
 	}
     }
