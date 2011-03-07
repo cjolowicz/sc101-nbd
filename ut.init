@@ -1,0 +1,89 @@
+#!/bin/bash
+#
+# /etc/rc.d/init.d/ut
+#
+# chkconfig: - 24 76
+# description: Attach/Detach ut mount points
+#
+
+# Source function library.
+. /etc/init.d/functions
+
+UT=/sbin/ut
+UTTAB=/etc/uttab
+
+# Check to make sure we have the needed files
+[ -x ${UT} ] || exit 0
+[ -s ${UTTAB} ] || exit 0
+
+retval=0
+
+start() {
+	echo -n $"Starting ut: "
+
+	modprobe nbd
+	let retval+=$?
+
+	while read dev uuid interface; do
+	    [ -z "$dev" -o "${dev#\#}" != "$dev" ] && continue
+
+	    if [ "${uuid#UUID=}" != "$uuid" -o "${#uuid}" == "36" ]
+	    then
+		uuid="${uuid#UUID=}"
+	    else
+		uuid=$($UT listall | fgrep -w "${uuid#LABEL=}" | awk '{print $1}')
+	    fi
+
+	    if fuser -0 -k $dev >/dev/null 2>&1
+	    then
+		echo "$dev already attached!";
+		continue
+	    fi
+
+	    args=""
+	    [ -n "$interface" ] && args="$args -d $interface"
+	    $UT $args attach $uuid $dev
+
+	    let retval+=$?
+	done < /etc/uttab
+
+	[ "$retval" -eq 0 ] && success $"Starting ut: " || failure $"Starting ut: "
+	echo
+
+	return $retval
+}
+
+stop() {
+	echo -n $"Shutting down ut: "
+
+	for dev in /dev/nbd*
+	do
+	    fuser -k $dev >/dev/null 2>&1
+	done
+
+	success $"Shutting down ut: "
+	echo
+}
+
+case "$1" in
+    start)
+	start
+	;;
+    stop)
+	stop
+	;;
+    status)
+	;;
+    restart)
+	stop
+	start
+	;;
+    reload)
+	;;
+    *)
+	echo "Usage: $0 {start|stop|status|reload|restart[|probe]"
+	exit 1
+	;;
+esac
+
+exit $?

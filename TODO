@@ -1,0 +1,14 @@
+check hardware id/version and skip unsupported/unknown
+add support for creating/deleting partitions and other featured of the windows tool
+support non-power-of-2 block aggregates (either readahead and throw away or submit multiple requests)
+support multiple interfaces? do broadcast messages to 255.255.255.255 go out all concurrently?
+follow DHCP address changes. when a disk stops responding, probe network for new address.
+robustness. try removing cable from machine or device, make sure it keeps going when reconnected.
+kernel testing (rhel5 is not good .. why?)
+are partial sendto/write's possible? check for short lengths and bomb.
+fix help/argument parsing. getopt et al.
+manual page.
+SA_RESTART signal handler. resume on strace etc.
+stats reporting. track oddball requests, timeouts, or unexpected responses.
+non-blocking sockets and multiple recvfrom per select. lower CPU utilisation.
+init script to auto-attach to devices listed in /etc/uttab (/etc/sc101/devices?)

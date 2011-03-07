@@ -1,0 +1,22 @@
+Source: sc101-nbd
+Section: admin
+Priority: optional
+Maintainer: Brendan O'Dea <bod@debian.org>
+Standards-Version: 3.7.2
+Build-Depends: debhelper (>= 5)
+
+Package: sc101-nbd
+Architecture: any
+Depends: ${shlibs:Depends}
+Recommends: dhcp3-server | dhcp-server | dhcp3-relay | dhcp-relay
+Description: Netgear SC101 NBD server
+ The Netgear SC101 is a low-cost networked enclosure for 2 x 3.5" IDE
+ disks:
+ .
+   http://www.netgear.com/Products/Storage/NetworkStorage/SC101.aspx
+ .
+ This software allows the partitions of disks in the SC101 to be
+ presented as block devices via the nbd kernel module.
+ .
+ On top of these devices you can run RAID, LVM, and any existing
+ filesystems (ext2/3, ocfs2, etc).

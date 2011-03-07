@@ -1,0 +1,35 @@
+.TH UT 8 "July 22, 2007"
+.SH NAME
+ut \- PSAN management program
+.SH SYNOPSIS
+.B "ut listall"
+.br
+.B "ut attach"
+.I partition-id
+.BI /dev/nbd N
+.SH DESCRIPTION
+The
+.B ut
+command is used to manage PSAN devices such as the Netgear SC101.
+.SS Arguments
+.TP
+.B listall
+Query available PSAN partitions.  Each partition found is listed
+indicating the 128 bit
+.IR partition-id ,
+label, ip address and size in Mb.
+.TP
+\fBattach\fR \fIpartition-id\fR \fB/dev/nbd\fIN\fR
+Attach PSAN partition identified by
+.I partition-id
+to an NDB block device.
+.PP
+Additional
+.B read
+and
+.B write
+commands exist for debugging purposes.
+.SH AUTHOR
+The
+.B sc101-nbd
+suite was written by Iain Wade <iwade@optusnet.com.au>
