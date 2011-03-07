@@ -1,0 +1,171 @@
+#! /bin/sh
+# /etc/init.d/ut: Initialize Netgear SC101 NBD server.
+### BEGIN INIT INFO
+# Provides:          ut
+# Required-Start:    $network $syslog
+# Required-Stop:     $network $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Initialize Netgear SC101 NBD server.
+# Description:       This script attaches and detaches NBD block devices to
+#                    the disk partitions exposed by a Netgear SC101 enclosure.
+### END INIT INFO
+
+# Do NOT "set -e"
+
+PATH=/sbin:/bin
+NAME=ut
+UT=/sbin/$NAME
+UT_ARGS=
+MODULE=nbd
+SCRIPTNAME=/etc/init.d/$NAME
+UTTAB=/etc/uttab
+
+# Exit if the package is not installed
+[ -x "$UT" ] || exit 0
+
+# Read configuration variable file if it is present
+[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+# Load the VERBOSE setting and other rcS variables
+. /lib/init/vars.sh
+
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
+. /lib/lsb/init-functions
+
+#
+# Attach NBD block devices.
+#
+do_start()
+{
+    log_action_begin_msg "Loading $MODULE kernel module"
+    if ! modprobe $MODULE ; then
+        log_action_end_msg $?
+        return 2
+    fi
+    log_action_end_msg 0
+
+    done=no
+
+    while read device uuid interface ; do
+        case $device in '' | '#'*)
+            continue ;;
+        esac
+
+        uuid="${uuid#UUID=}"
+        uuid="${uuid#LABEL=}"
+
+        if [ ${#uuid} -ne 36 ] ; then
+            if [ -z "$disks" ] ; then
+                if ! disks="$($UT $UT_ARGS listall)" ; then
+                    log_failure_msg "Cannot list available sc101 disks"
+                    return 2
+                fi
+            fi
+
+            uuid=$(echo "$disks" | fgrep -iw "$uuid" |
+                   while read a b; do echo $a; done) # poor man's awk
+        fi
+
+        if fuser -0 -k $device >/dev/null 2>&1 ; then
+            log_warning_msg "$device already attached"
+            continue
+        fi
+
+        args="$UT_ARGS"
+        [ -z "$interface" ] || args="$args -d $interface"
+
+        log_action_begin_msg "Attaching $device to sc101 disk $uuid"
+        if ! $UT $args attach $uuid $device ; then
+            log_action_end_msg $?
+            return 2
+        fi
+        log_action_end_msg 0
+
+        done=yes
+    done < $UTTAB
+
+    test $done = yes
+}
+
+#
+# Detach NBD block devices.
+#
+do_stop()
+{
+    done=no
+
+    while read device uuid interface ; do
+        case $device in '' | '#'*)
+            continue ;;
+        esac
+
+        log_action_begin_msg "Detaching $device"
+        if ! fuser -k $device >/dev/null 2>&1 ; then
+            log_action_end_msg $?
+            continue
+        fi
+        log_action_end_msg 0
+        done=yes
+    done < $UTTAB
+
+    test $done = yes
+}
+
+#
+# Check if the NBD block devices are attached.
+#
+do_status()
+{
+    ok=yes
+
+    while read device uuid interface ; do
+        case $device in '' | '#'*)
+            continue ;;
+        esac
+
+        log_action_begin_msg "Checking if $device is attached"
+        if ! fuser -0 -k $device >/dev/null 2>&1 ; then
+            log_action_end_msg $?
+            ok=no
+            continue
+        fi
+        log_action_end_msg 0
+    done < $UTTAB
+
+    test $ok = yes
+}
+
+if [ ! -s "$UTTAB" ] ; then
+    log_warning_msg "No devices have been configured in $UTTAB."
+    exit 0
+fi
+
+case "$1" in
+    start)
+        do_start
+	;;
+
+    stop)
+        do_stop
+	;;
+
+    status)
+        do_status || exit $?
+	;;
+
+    restart|force-reload)
+        do_stop
+        case $? in 0|1)
+            do_start ;;
+        esac
+        ;;
+
+  *)
+        echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
+        exit 3
+        ;;
+esac
+
+:

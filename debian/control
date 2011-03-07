@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 5)
 
 Package: sc101-nbd
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, lsb-base (>= 3.0-6)
 Recommends: dhcp3-server | dhcp-server | dhcp3-relay | dhcp-relay
 Description: Netgear SC101 NBD server
  The Netgear SC101 is a low-cost networked enclosure for 2 x 3.5" IDE
