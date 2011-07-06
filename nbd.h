@@ -18,7 +18,6 @@
 
 #include <stdint.h>
 typedef uint32_t __be32;
-typedef uint64_t __be64;
 typedef uint32_t u32;
 typedef uint64_t u64;
 
