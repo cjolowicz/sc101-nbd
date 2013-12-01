@@ -258,7 +258,7 @@ void psan_write(char *id, long long offset, char *file)
 	    break;
 
     if (power == 16)
-	errx(EXIT_FAILURE, "bad power: %d(length=%u)", power, sizeof(buf));
+	errx(EXIT_FAILURE, "bad power: %d(length=%u)", power, (unsigned)sizeof(buf));
 
     /* build packet */
     uint16_t expected_seq = psan_next_seq();
